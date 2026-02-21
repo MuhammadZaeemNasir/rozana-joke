@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.markdown-body {
+  word-break: break-word;
+}
+
+.markdown-body p {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
