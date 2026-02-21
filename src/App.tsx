@@ -4,179 +4,130 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, RefreshCw } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Send, Bot, User, Loader2, RefreshCcw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Markdown from 'react-markdown';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-// Utility for tailwind classes
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 interface Message {
-  role: 'user' | 'model';
-  text: string;
+  role: 'user' | 'bot';
+  content: string;
 }
 
-export default function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }
-  ]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+const SYSTEM_INSTRUCTION = `تم ایک مزے دار اردو جوک بوٹ ہو۔ ہر بار ایک نیا جوک دو، ہلکا پھلکا، پاکستانی سٹائل میں۔ اگر کوئی اور سوال پوچھے تو اردو میں جواب دو۔ جواب مختصر رکھو، 2-3 لائن۔`;
 
-  // Auto-scroll to bottom
+export default function App() {
+  const = useState<Message[]>([
+    { role: 'bot', content: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }
+  ]);
+  const = useState('');
+  const = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isLoading]);
+    scrollToBottom();
+  }, );
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setMessages(prev => );
     setIsLoading(true);
 
     try {
-      const history = messages.map(m => ({
-        role: m.role,
-        parts: [{ text: m.text }]
-      }));
-
-      const response = await fetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage, history })
+        body: JSON.stringify({
+          message: userMessage,
+          history: messages
+        })
       });
 
-      if (!response.ok) throw new Error('Failed to fetch response');
+      if (!res.ok) {
+        throw new Error('API error');
+      }
 
-      const data = await response.json();
-      setMessages(prev => [...prev, { role: 'model', text: data.text }]);
-    } catch (error) {
-      console.error('Error:', error);
-      setMessages(prev => [...prev, { role: 'model', text: 'معذرت، کچھ غلط ہو گیا۔ براہ کرم دوبارہ کوشش کریں۔' }]);
+      const data = await res.json();
+      const botReply = data.reply || "معذرت، کچھ غلط ہو گیا۔";
+
+      setMessages(prev => [...prev, { role: 'bot', content: botReply } ...prev, { role: 'bot', content: "اوہو! انٹرنیٹ کا مسئلہ لگتا ہے۔ دوبارہ کوشش کریں بھئی۔" }]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const resetChat = () => {
+    setMessages([{ role: 'bot', content: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }]);
+  };
+
   return (
-    <div className="min-h-screen bg-[#fdfcf0] text-[#2d3436] font-sans selection:bg-emerald-100" dir="rtl">
-      {/* Header */}
-      <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-emerald-100 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
-              <Bot className="text-white w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="font-bold text-xl tracking-tight text-emerald-900">اردو جوک بوٹ</h1>
-              <p className="text-xs text-emerald-600 font-medium">ہمیشہ آپ کے چہرے پر مسکراہٹ لانے کے لیے تیار!</p>
-            </div>
+    <div className="min-h-screen bg- text- font-sans selection:bg-orange-100 flex flex-col items-center p-4 md:p-8">
+      {/* ہِیڈر اور باقی UI وہی رکھو جو تمہارا ہے – یہاں صرف API فکس ہے */}
+      <header className="w-full max-w-2xl flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200">
+            <Bot className="text-white w-7 h-7" />
           </div>
-          <button 
-            onClick={() => setMessages([{ role: 'model', text: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }])}
-            className="p-2 hover:bg-emerald-50 rounded-full transition-colors text-emerald-600"
-            title="چیٹ ری سیٹ کریں"
-          >
-            <RefreshCw className="w-5 h-5" />
-          </button>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-orange-600">روزانہ جوک بوٹ</h1>
+            <p className="text-sm text-gray-500 font-medium">مزے دار اردو جوک</p>
+          </div>
         </div>
+        <button onClick={resetChat} className="p-2 hover:bg-orange-50 rounded-full transition-colors text-orange-600">
+          <RefreshCcw className="w-5 h-5" />
+        </button>
       </header>
 
-      {/* Chat Container */}
-      <main className="max-w-3xl mx-auto pt-24 pb-32 px-4">
-        <div 
-          ref={scrollRef}
-          className="space-y-6 overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-hide"
-        >
+      {/* چیٹ اور ان پٹ – تمہارا پرانا UI رکھ لو، بس handleSend تبدیل ہے */}
+      <main className="w-full max-w-2xl flex-1 bg-white rounded- shadow-xl shadow-orange-100/50 border border-orange-50 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-orange-100">
           <AnimatePresence initial={false}>
             {messages.map((msg, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.2 }}
-                className={cn(
-                  "flex gap-3",
-                  msg.role === 'user' ? "flex-row-reverse" : "flex-row"
-                )}
-              >
-                <div className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-1",
-                  msg.role === 'user' ? "bg-indigo-500" : "bg-emerald-500"
-                )}>
-                  {msg.role === 'user' ? <User className="w-5 h-5 text-white" /> : <Bot className="w-5 h-5 text-white" />}
+              <motion.div key={idx} initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className={cn("flex w-full gap-3", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}>
+                <div className={cn("w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1", msg.role === 'user' ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-600")}>
+                  {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                 </div>
-                <div className={cn(
-                  "max-w-[85%] px-4 py-3 rounded-2xl shadow-sm text-lg leading-relaxed",
-                  msg.role === 'user' 
-                    ? "bg-indigo-600 text-white rounded-tr-none" 
-                    : "bg-white border border-emerald-50 text-emerald-950 rounded-tl-none"
-                )}>
-                  <div className="markdown-body prose prose-emerald max-w-none">
-                    <Markdown>{msg.text}</Markdown>
-                  </div>
+                <div className={cn("max-w-[80%] px-5 py-3 rounded-2xl text-lg leading-relaxed", msg.role === 'user' ? "bg-orange-500 text-white rounded-tr-none text-right" : "bg-gray-50 text-gray-800 rounded-tl-none text-right")} dir="rtl">
+                  <Markdown>{msg.content}</Markdown>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
-
           {isLoading && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex gap-3"
-            >
-              <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
-                <Bot className="w-5 h-5 text-white" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-gray-400" />
               </div>
-              <div className="bg-white border border-emerald-50 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
-                <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
-                <span className="text-emerald-600 text-sm font-medium">بوٹ سوچ رہا ہے...</span>
+              <div className="bg-gray-50 px-5 py-3 rounded-2xl rounded-tl-none flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                <span className="text-sm text-gray-400 font-medium">زعیم سوچ رہا ہے...</span>
               </div>
             </motion.div>
           )}
+          <div ref={messagesEndRef} />
         </div>
-      </main>
 
-      {/* Input Area */}
-      <footer className="fixed bottom-0 w-full bg-white border-t border-emerald-100 p-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="relative flex items-center gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="یہاں اپنا پیغام لکھیں..."
-              className="w-full bg-emerald-50/50 border border-emerald-100 rounded-2xl px-6 py-4 pr-14 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-lg"
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              className={cn(
-                "absolute left-2 p-3 rounded-xl transition-all",
-                input.trim() && !isLoading 
-                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-200 hover:scale-105 active:scale-95" 
-                  : "bg-emerald-100 text-emerald-300 cursor-not-allowed"
-              )}
-            >
-              <Send className="w-6 h-6 rotate-180" />
+        <div className="p-6 bg-white border-t border-orange-50">
+          <div className="relative flex items-center">
+            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="یہاں جوک پوچھو..." dir="rtl" className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 pr-14 text-lg focus:ring-2 focus:ring-orange-500 transition-all outline-none placeholder:text-gray-400" />
+            <button onClick={handleSend} disabled={!input.trim() || isLoading} className="absolute right-3 p-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 disabled:opacity-50 transition-all shadow-lg shadow-orange-200">
+              <Send className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-center text-[10px] text-emerald-400 mt-2 font-medium">
-            اردو جوک بوٹ - آپ کی خوشی، ہماری ترجیح
-          </p>
         </div>
-      </footer>
+      </main>
     </div>
   );
 }
