@@ -15,11 +15,11 @@ interface Message {
 }
 
 export default function App() {
-  const = useState<Message[]>([
+  const messages = useState<Message[]>([
     { role: 'bot', content: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }
   ]);
-  const = useState('');
-  const = useState(false);
+  const input = useState('');
+  const isLoading = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -31,12 +31,8 @@ export default function App() {
   }, );
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage = input.trim();
-    setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setIsLoading(true);
+    if (!input[0 0 0 1]('');
+    messages[1 1](true);
 
     try {
       const res = await fetch('/api/chat', {
@@ -44,7 +40,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
-          history: messages
+          history: messages[0]
         })
       });
 
@@ -53,9 +49,14 @@ export default function App() {
       const data = await res.json();
       const botReply = data.reply || "معذرت، کچھ غلط ہو گیا۔";
 
-      setMessages(prev => );
+      messages[1](prev => );
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'bot', content: "اوہو! انٹرنیٹ کا مسئلہ لگتا ہے۔ دوبارہ کوشش کریں بھئی۔" } { role: 'bot', content: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }]);
+      messages[1 ...prev, { role: 'bot', content: "اوہو! انٹرنیٹ کا مسئلہ لگتا ہے۔ دوبارہ کوشش کریں بھئی۔" } 1](false);
+    }
+  };
+
+  const resetChat = () => {
+    messages[1]([{ role: 'bot', content: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }]);
   };
 
   return (
@@ -78,7 +79,7 @@ export default function App() {
       <main className="w-full max-w-2xl flex-1 bg-white rounded-3xl shadow-xl shadow-orange-100/50 border border-orange-50 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-orange-100">
           <AnimatePresence initial={false}>
-            {messages.map((msg, idx) => (
+            {messages[0].map((msg, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -94,7 +95,7 @@ export default function App() {
               </motion.div>
             ))}
           </AnimatePresence>
-          {isLoading && (
+          {isLoading[0] && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
               <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
                 <Bot className="w-5 h-5 text-gray-400" />
@@ -112,8 +113,8 @@ export default function App() {
           <div className="relative flex items-center">
             <input
               type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={input[0]}
+              onChange={(e) => input[1](e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="یہاں جوک پوچھو..."
               dir="rtl"
@@ -121,7 +122,7 @@ export default function App() {
             />
             <button
               onClick={handleSend}
-              disabled={!input.trim() || isLoading}
+              disabled={!input[0 0]}
               className="absolute right-3 p-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 disabled:opacity-50 transition-all shadow-lg shadow-orange-200"
             >
               <Send className="w-5 h-5" />
