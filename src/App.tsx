@@ -15,11 +15,13 @@ interface Message {
 }
 
 export default function App() {
-  const messages = useState<Message[]>([
-    { role: 'bot', content: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }
-  ]);
-  const input = useState('');
-  const isLoading = useState(false);
+const messages = useState<Message[]>([
+  { role: 'bot', content: 'اسلام علیکم! آج کا جوک سناؤں؟ 😄' }
+]);
+
+const input = useState('');
+
+const isLoading = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
